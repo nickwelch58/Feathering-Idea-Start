@@ -105,6 +105,34 @@ void FeatheringIdeaStartAudioProcessor::prepareToPlay (double sampleRate, int sa
 
     leftChain.prepare(spec);
     rightChain.prepare(spec);
+
+    auto chainSettings = getChainSettings(apvts);
+
+    auto peak1Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, chainSettings.peak1Freq, chainSettings.peak1Quality,
+        juce::Decibels::decibelsToGain(chainSettings.peak1GainInDecibels));
+
+    auto peak2Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, chainSettings.peak2Freq, chainSettings.peak2Quality,
+        juce::Decibels::decibelsToGain(chainSettings.peak2GainInDecibels));
+
+    auto peak3Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, chainSettings.peak3Freq, chainSettings.peak3Quality,
+        juce::Decibels::decibelsToGain(chainSettings.peak3GainInDecibels));
+
+    auto peak4Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, chainSettings.peak4Freq, chainSettings.peak4Quality,
+        juce::Decibels::decibelsToGain(chainSettings.peak4GainInDecibels));
+    
+
+    
+
+    *leftChain.get<ChainPositions::Peak1>().coefficients = *peak1Coefficients;
+    *leftChain.get<ChainPositions::Peak2>().coefficients = *peak2Coefficients;
+    *leftChain.get<ChainPositions::Peak3>().coefficients = *peak3Coefficients;
+    *leftChain.get<ChainPositions::Peak4>().coefficients = *peak4Coefficients;
+
+    *rightChain.get<ChainPositions::Peak1>().coefficients = *peak1Coefficients;
+    *rightChain.get<ChainPositions::Peak2>().coefficients = *peak2Coefficients;
+    *rightChain.get<ChainPositions::Peak3>().coefficients = *peak3Coefficients;
+    *rightChain.get<ChainPositions::Peak4>().coefficients = *peak4Coefficients;
+    
 }
 
 void FeatheringIdeaStartAudioProcessor::releaseResources()
@@ -154,6 +182,34 @@ void FeatheringIdeaStartAudioProcessor::processBlock (juce::AudioBuffer<float>& 
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+    auto chainSettings = getChainSettings(apvts);
+
+    auto peak1Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peak1Freq, chainSettings.peak1Quality,
+        juce::Decibels::decibelsToGain(chainSettings.peak1GainInDecibels));
+
+    auto peak2Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peak2Freq, chainSettings.peak2Quality,
+        juce::Decibels::decibelsToGain(chainSettings.peak2GainInDecibels));
+
+    auto peak3Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peak3Freq, chainSettings.peak3Quality,
+        juce::Decibels::decibelsToGain(chainSettings.peak3GainInDecibels));
+
+    auto peak4Coefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(), chainSettings.peak4Freq, chainSettings.peak4Quality,
+        juce::Decibels::decibelsToGain(chainSettings.peak4GainInDecibels));
+
+
+
+
+    *leftChain.get<ChainPositions::Peak1>().coefficients = *peak1Coefficients;
+    *leftChain.get<ChainPositions::Peak2>().coefficients = *peak2Coefficients;
+    *leftChain.get<ChainPositions::Peak3>().coefficients = *peak3Coefficients;
+    *leftChain.get<ChainPositions::Peak4>().coefficients = *peak4Coefficients;
+
+    *rightChain.get<ChainPositions::Peak1>().coefficients = *peak1Coefficients;
+    *rightChain.get<ChainPositions::Peak2>().coefficients = *peak2Coefficients;
+    *rightChain.get<ChainPositions::Peak3>().coefficients = *peak3Coefficients;
+    *rightChain.get<ChainPositions::Peak4>().coefficients = *peak4Coefficients;
+
+
     juce::dsp::AudioBlock<float> block(buffer);
 
     auto leftBlock = block.getSingleChannelBlock(0);
@@ -191,6 +247,29 @@ void FeatheringIdeaStartAudioProcessor::setStateInformation (const void* data, i
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
+{
+    ChainSettings settings;
+
+    settings.peak1Freq = apvts.getRawParameterValue("Freq 1")->load();
+    settings.peak2Freq = apvts.getRawParameterValue("Freq 2")->load();
+    settings.peak3Freq = apvts.getRawParameterValue("Freq 3")->load();
+    settings.peak4Freq = apvts.getRawParameterValue("Freq 4")->load();
+
+    settings.peak1GainInDecibels = apvts.getRawParameterValue("Gain 1")->load();
+    settings.peak2GainInDecibels = apvts.getRawParameterValue("Gain 2")->load();
+    settings.peak3GainInDecibels = apvts.getRawParameterValue("Gain 3")->load();
+    settings.peak4GainInDecibels = apvts.getRawParameterValue("Gain 4")->load();
+
+    settings.peak1Quality = apvts.getRawParameterValue("Q 1")->load();
+    settings.peak2Quality = apvts.getRawParameterValue("Q 2")->load();
+    settings.peak3Quality = apvts.getRawParameterValue("Q 3")->load();
+    settings.peak4Quality = apvts.getRawParameterValue("Q 4")->load();
+
+    return settings;
+}
+
 //STARTING WITH 4 Bands to Feather
 juce::AudioProcessorValueTreeState::ParameterLayout FeatheringIdeaStartAudioProcessor::createParameterLayout()
 {
@@ -210,6 +289,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout FeatheringIdeaStartAudioProc
                                                            "Q 1",
                                                            juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
                                                            1.f));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>("Freq 2",
                                                            "Freq 2",
                                                             juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
