@@ -166,7 +166,8 @@ bool FeatheringIdeaStartAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* FeatheringIdeaStartAudioProcessor::createEditor()
 {
-    return new FeatheringIdeaStartAudioProcessorEditor (*this);
+    //return new FeatheringIdeaStartAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -181,6 +182,70 @@ void FeatheringIdeaStartAudioProcessor::setStateInformation (const void* data, i
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+//STARTING WITH ONE BAND
+juce::AudioProcessorValueTreeState::ParameterLayout FeatheringIdeaStartAudioProcessor::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Freq 1",
+                                                           "Freq 1",
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
+                                                            250.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Gain 1",
+                                                           "Gain 1",
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           0.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Q 1",
+                                                           "Q 1",
+                                                           juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
+                                                           1.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Freq 2",
+                                                           "Freq 2",
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
+                                                            500.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Gain 2",
+                                                           "Gain 2",
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           0.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Q 2",
+                                                           "Q 2",
+                                                           juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
+                                                           1.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Freq 3",
+                                                           "Freq 3",
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
+                                                            750.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Gain 3",
+                                                           "Gain 3",
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           0.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Q 3",
+                                                           "Q 3",
+                                                           juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
+                                                           1.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Freq 4",
+                                                           "Freq 4",
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
+                                                            1000.f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Gain 4",
+                                                           "Gain 4",
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           0.0f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Q 4",
+                                                           "Q 4",
+                                                           juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
+                                                           1.f));
+    return layout;
 }
 
 //==============================================================================
